@@ -1,0 +1,47 @@
+
+
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+#import chardet
+import os
+import sys 
+import time
+import logging
+import spidev as SPI
+sys.path.append("..")
+from lib import LCD_2inch4
+from PIL import Image,ImageDraw,ImageFont
+
+# Raspberry Pi pin configuration:
+RST = 27
+DC = 25
+BL = 18
+bus = 0 
+device = 0 
+logging.basicConfig(level=logging.DEBUG)
+
+frame_count = {'blink':39, 'happy':44, 'sad':47,'dizzy':67,'excited':24,'neutral':61,'happy2':20,'angry':20,'happy3':26,'bootup3':124,'blink2':20}
+try:
+    # display with hardware SPI:
+    ''' Warning!!!Don't  creation of multiple displayer objects!!! '''
+    #disp = LCD_2inch4.LCD_2inch4(spi=SPI.SpiDev(bus, device),spi_freq=10000000,rst=RST,dc=DC,bl=BL)
+    disp = LCD_2inch4.LCD_2inch4()
+    # Initialize library.
+    disp.Init()
+    # Clear display.
+    disp.clear()
+    emotion = "dizzy"
+    # Create blank image for drawing
+    while True:
+    	for i in range(frame_count[emotion]):
+            image = Image.open(f"emotions/{emotion}/frame{i}.png")	
+            disp.ShowImage(image)
+    time.sleep(3)
+    disp.module_exit()
+    logging.info("quit:")
+except IOError as e:
+    logging.info(e)    
+except KeyboardInterrupt:
+    disp.module_exit()
+    logging.info("quit:")
+    exit()
